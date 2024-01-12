@@ -28,7 +28,7 @@ public class ContainerManager {
         new Thread(() -> {
             try {
                 InputStream inputStream = container.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, System.getProperty("sun.jnu.encoding")));
                 String str;
                 while ((str = reader.readLine()) != null) {
                     sendToWS(container.getContainerId(), str,WSMessageType.LOG);
