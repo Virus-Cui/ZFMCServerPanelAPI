@@ -1,5 +1,6 @@
 package cn.mrcsh.zfmcserverpanelapi.entity.structure;
 
+import cn.mrcsh.zfmcserverpanelapi.entity.enums.ContainerStatus;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -38,7 +39,11 @@ public class Container {
     private String stopCmd;
     // 守护进程PID
     @TableField(exist = false)
-    private String pid;
+    private Long pid;
+    // 进程状态
+    @TableField(exist = false)
+    private ContainerStatus status;
+    // 日志
     private String oldlog;
 
     public void initStream() {
@@ -64,7 +69,7 @@ public class Container {
 
     public void sendCommand(String cmd)  {
         try {
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream,"gbk"));
             writer.write(cmd);
             writer.newLine();
             writer.flush();

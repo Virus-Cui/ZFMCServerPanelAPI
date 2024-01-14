@@ -1,6 +1,7 @@
 package cn.mrcsh.zfmcserverpanelapi.manager;
 
 import cn.hutool.core.util.IdUtil;
+import cn.mrcsh.zfmcserverpanelapi.entity.enums.ContainerStatus;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.WSMessageType;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.WSMessage;
@@ -17,13 +18,23 @@ import java.util.List;
 @Slf4j
 public class ContainerManager {
     // 实例ID 实例
-    private LinkedHashMap<String, Container> containerLinkedHashMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, Container> containerLinkedHashMap = new LinkedHashMap<>();
 
     public void exec(Container container) throws IOException {
+        container.setStatus(ContainerStatus.STARTING);
         Process exec = Runtime.getRuntime().exec(container.getCmd(), new String[]{}, new File(container.getWorkdir()));
+        new Thread(()->{
+            try {
+                Thread.sleep(3000);
+                container.setStatus(ContainerStatus.RUNNING);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
         log.info("运行实例：{}", container.getContainerId());
         container.setProcess(exec);
         container.initStream();
+        container.setPid(exec.pid());
         containerLinkedHashMap.put(container.getContainerId(), container);
         new Thread(() -> {
             try {
@@ -42,6 +53,7 @@ public class ContainerManager {
             while (true){
                 if(!exec.isAlive()){
                     sendToWS(container.getContainerId(), "进程退出", WSMessageType.STATUS);
+                    containerLinkedHashMap.remove(container.getContainerId());
                     break;
                 }
             }
@@ -69,6 +81,9 @@ public class ContainerManager {
         }catch (Exception e){
             log.error("向ws客户端发送消息失败",e);
         }
+    }
 
+    public LinkedHashMap<String, Container> getRunningContainer(){
+        return containerLinkedHashMap;
     }
 }
