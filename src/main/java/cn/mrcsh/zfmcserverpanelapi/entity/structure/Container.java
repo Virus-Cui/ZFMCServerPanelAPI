@@ -47,6 +47,8 @@ public class Container {
     private ContainerStatus status;
     // 日志
     private String oldlog;
+    @TableField(exist = false)
+    private String lastType;
 
     public void initStream() {
         this.setErrorStream(process.getErrorStream());

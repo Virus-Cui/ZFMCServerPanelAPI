@@ -22,9 +22,10 @@ public class ContainerManager {
     // 实例ID 实例
     private final LinkedHashMap<String, Container> containerLinkedHashMap = new LinkedHashMap<>();
 
-    @Autowired
-    @Lazy
-    private static ContainerManager containerManager;
+    private final String INFO = "<span style='color: green'>%s</span><span style='color: #FFF'>%s</span>";
+    private final String WARN = "<span style='color: orange'>%s</span><span style='color: #FFF'>%s</span>";
+    private final String ERROR = "<span style='color: red'>%s</span><span style='color: #FFF'>%s</span>";
+    private final String NOMALE = "<span style='color: #FFF'>%s</span>";
 
     public void exec(Container container) throws IOException {
         container.setStatus(ContainerStatus.STARTING);
@@ -48,7 +49,23 @@ public class ContainerManager {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, System.getProperty("sun.jnu.encoding")));
                 String str;
                 while ((str = reader.readLine()) != null) {
-                    sendToWS(container.getContainerId(), str, WSMessageType.LOG);
+                    String log = "";
+                    if(str.contains("INFO]:")){
+                        String[] split = str.split("INFO]:");
+                        log = String.format(INFO,split[0]+"INFO]:",split[1]);
+                        container.setLastType(INFO);
+                    }else if(str.contains("WARN]:")){
+                        String[] split = str.split("WARN]:");
+                        log = String.format(WARN,split[0]+"WARN]:",split[1]);
+                        container.setLastType(WARN);
+                    }else if(str.contains("ERROR]:")){
+                        String[] split = str.split("ERROR]:");
+                        log = String.format(ERROR,split[0]+"ERROR]:",split[1]);
+                        container.setLastType(ERROR);
+                    }else {
+                        log = String.format(container.getLastType()==null?NOMALE:container.getLastType(),"",str);
+                    }
+                    sendToWS(container.getContainerId(), log, WSMessageType.LOG);
                 }
             } catch (Exception e) {
                 log.error("错误", e);
@@ -94,7 +111,4 @@ public class ContainerManager {
         return containerLinkedHashMap;
     }
 
-    public static ContainerManager getInstance() {
-        return containerManager;
-    }
 }
