@@ -45,4 +45,9 @@ public class ProcessController extends ABaseController{
         PageVo<Container> pageVo = containerService.getAllContainer(currentPage,containerName);
         return success(pageVo);
     }
+
+    @GetMapping("/dis/{id}")
+    public void dis(@PathVariable String id){
+        containerManager.getContainerByContainerId(id).shutdown();
+    }
 }

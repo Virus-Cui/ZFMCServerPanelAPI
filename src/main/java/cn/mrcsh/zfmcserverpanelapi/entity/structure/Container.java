@@ -1,6 +1,8 @@
 package cn.mrcsh.zfmcserverpanelapi.entity.structure;
 
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.ContainerStatus;
+import cn.mrcsh.zfmcserverpanelapi.entity.enums.WSMessageType;
+import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -53,10 +55,8 @@ public class Container {
     }
 
     public void shutdown() {
-        if(stopCmd == null){
-            process.pid();
-        }
         log.info("正在关闭实例:{}",containerId);
+        this.process.destroyForcibly();
         try {
             if (errorStream != null) errorStream.close();
             if (inputStream != null) inputStream.close();
@@ -64,7 +64,6 @@ public class Container {
         } catch (Exception e) {
             log.error("关闭流失败，请注意文件占用情况");
         }
-        this.process.destroy();
     }
 
     public void sendCommand(String cmd)  {

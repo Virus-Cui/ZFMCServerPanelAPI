@@ -8,6 +8,8 @@ import cn.mrcsh.zfmcserverpanelapi.entity.structure.WSMessage;
 import com.alibaba.fastjson2.JSON;
 import jakarta.websocket.Session;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -20,10 +22,14 @@ public class ContainerManager {
     // 实例ID 实例
     private final LinkedHashMap<String, Container> containerLinkedHashMap = new LinkedHashMap<>();
 
+    @Autowired
+    @Lazy
+    private static ContainerManager containerManager;
+
     public void exec(Container container) throws IOException {
         container.setStatus(ContainerStatus.STARTING);
         Process exec = Runtime.getRuntime().exec(container.getCmd(), new String[]{}, new File(container.getWorkdir()));
-        new Thread(()->{
+        new Thread(() -> {
             try {
                 Thread.sleep(3000);
                 container.setStatus(ContainerStatus.RUNNING);
@@ -42,20 +48,21 @@ public class ContainerManager {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, System.getProperty("sun.jnu.encoding")));
                 String str;
                 while ((str = reader.readLine()) != null) {
-                    sendToWS(container.getContainerId(), str,WSMessageType.LOG);
+                    sendToWS(container.getContainerId(), str, WSMessageType.LOG);
                 }
             } catch (Exception e) {
                 log.error("错误", e);
             }
 
         }).start();
-        new Thread(()->{
-            while (true){
-                if(!exec.isAlive()){
+        new Thread(() -> {
+            while (true) {
+                if (!exec.isAlive()) {
                     sendToWS(container.getContainerId(), "进程退出", WSMessageType.STATUS);
                     containerLinkedHashMap.remove(container.getContainerId());
                     break;
                 }
+
             }
         }).start();
     }
@@ -64,12 +71,12 @@ public class ContainerManager {
         return containerLinkedHashMap.get(id);
     }
 
-    public void sendToWS(String containerId, String msg, WSMessageType wsMessageType){
+    public void sendToWS(String containerId, String msg, WSMessageType wsMessageType) {
         try {
             List<Session> sessions = WebsocketManager.SESSION_POOL.get(containerId);
             if (sessions != null) {
                 for (Session session : sessions) {
-                    if(session != null){
+                    if (session != null) {
                         WSMessage wsMessage = new WSMessage();
                         wsMessage.setData(msg);
                         wsMessage.setType(wsMessageType.getCode());
@@ -78,12 +85,16 @@ public class ContainerManager {
                     }
                 }
             }
-        }catch (Exception e){
-            log.error("向ws客户端发送消息失败",e);
+        } catch (Exception e) {
+            log.error("向ws客户端发送消息失败", e);
         }
     }
 
-    public LinkedHashMap<String, Container> getRunningContainer(){
+    public LinkedHashMap<String, Container> getRunningContainer() {
         return containerLinkedHashMap;
+    }
+
+    public static ContainerManager getInstance() {
+        return containerManager;
     }
 }
