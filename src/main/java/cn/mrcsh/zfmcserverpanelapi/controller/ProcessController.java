@@ -5,15 +5,21 @@ import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.PageVo;
 import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
 import cn.mrcsh.zfmcserverpanelapi.service.ContainerService;
+import cn.mrcsh.zfmcserverpanelapi.service.SystemSettingsService;
+import cn.mrcsh.zfmcserverpanelapi.utils.FileUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/container")
 @CrossOrigin
+@Slf4j
 public class ProcessController extends ABaseController{
 
     @Autowired
@@ -21,6 +27,9 @@ public class ProcessController extends ABaseController{
 
     @Autowired
     private ContainerService containerService;
+
+    @Autowired
+    private SystemSettingsService settingsService;
 
     @PostMapping("/createNewContainer")
     public response createNewInstance(@RequestBody Container container){
@@ -49,5 +58,11 @@ public class ProcessController extends ABaseController{
     @GetMapping("/dis/{id}")
     public void dis(@PathVariable String id){
         containerManager.getContainerByContainerId(id).shutdown();
+    }
+
+    @PostMapping("/uploadFile/{type}")
+    public void uploadFile(@PathVariable Integer type, MultipartFile file){
+        log.info(file.getOriginalFilename());
+        FileUtils.saveToPath(file, new File(settingsService.getSettings().getDataDir()));
     }
 }

@@ -1,25 +1,29 @@
 package cn.mrcsh.zfmcserverpanelapi.manager;
 
-import cn.hutool.core.util.IdUtil;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.ContainerStatus;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.WSMessageType;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.WSMessage;
+import cn.mrcsh.zfmcserverpanelapi.mapper.ContainerMapper;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import jakarta.websocket.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 @Component
 @Slf4j
 public class ContainerManager {
     // 实例ID 实例
+
+    @Autowired
+    private ContainerMapper containerMapper;
     private final LinkedHashMap<String, Container> containerLinkedHashMap = new LinkedHashMap<>();
 
     private final String INFO = "<span style='color: green'>%s</span><span style='color: #FFF'>%s</span>";
@@ -42,7 +46,12 @@ public class ContainerManager {
         container.setProcess(exec);
         container.initStream();
         container.setPid(exec.pid());
+        container.setQueue(JSON.parseObject(container.getOldlog(), new TypeReference<LinkedList<String>>() {
+        }));
         containerLinkedHashMap.put(container.getContainerId(), container);
+        if (container.getQueue() == null) {
+            container.setQueue(new LinkedList<>());
+        }
         new Thread(() -> {
             try {
                 InputStream inputStream = container.getInputStream();
@@ -50,21 +59,32 @@ public class ContainerManager {
                 String str;
                 while ((str = reader.readLine()) != null) {
                     String log = "";
-                    if(str.contains("INFO]:")){
+                    if (str.contains("INFO]:")) {
                         String[] split = str.split("INFO]:");
-                        log = String.format(INFO,split[0]+"INFO]:",split[1]);
+                        log = String.format(INFO, split[0] + "INFO]:", split[1]);
                         container.setLastType(INFO);
-                    }else if(str.contains("WARN]:")){
+                    } else if (str.contains("WARN]:")) {
                         String[] split = str.split("WARN]:");
-                        log = String.format(WARN,split[0]+"WARN]:",split[1]);
+                        log = String.format(WARN, split[0] + "WARN]:", split[1]);
                         container.setLastType(WARN);
-                    }else if(str.contains("ERROR]:")){
+                    } else if (str.contains("ERROR]:")) {
                         String[] split = str.split("ERROR]:");
-                        log = String.format(ERROR,split[0]+"ERROR]:",split[1]);
+                        log = String.format(ERROR, split[0] + "ERROR]:", split[1]);
                         container.setLastType(ERROR);
-                    }else {
-                        log = String.format(container.getLastType()==null?NOMALE:container.getLastType(),"",str);
+                    } else {
+                        if (container.getLastType() == null) {
+                            container.setLastType(NOMALE);
+                        }
+                        if (container.getLastType().equals(NOMALE)) {
+                            log = String.format(NOMALE, str);
+                        } else {
+                            log = String.format(container.getLastType(), "", str);
+                        }
                     }
+                    if (container.getQueue().size() >= 500) {
+                        container.getQueue().remove();
+                    }
+                    container.getQueue().add(log);
                     sendToWS(container.getContainerId(), log, WSMessageType.LOG);
                 }
             } catch (Exception e) {
@@ -76,6 +96,8 @@ public class ContainerManager {
             while (true) {
                 if (!exec.isAlive()) {
                     sendToWS(container.getContainerId(), "进程退出", WSMessageType.STATUS);
+                    container.setOldlog(JSON.toJSONString(container.getQueue()));
+                    containerMapper.updateById(container);
                     containerLinkedHashMap.remove(container.getContainerId());
                     break;
                 }

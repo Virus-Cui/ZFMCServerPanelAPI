@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Queue;
 
 @Data
 @Slf4j
@@ -49,6 +50,8 @@ public class Container {
     private String oldlog;
     @TableField(exist = false)
     private String lastType;
+    @TableField(exist = false)
+    private Queue<String> queue;
 
     public void initStream() {
         this.setErrorStream(process.getErrorStream());
