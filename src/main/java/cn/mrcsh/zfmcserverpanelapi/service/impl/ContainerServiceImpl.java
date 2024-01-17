@@ -7,12 +7,16 @@ import cn.mrcsh.zfmcserverpanelapi.entity.vo.PageVo;
 import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
 import cn.mrcsh.zfmcserverpanelapi.mapper.ContainerMapper;
 import cn.mrcsh.zfmcserverpanelapi.service.ContainerService;
+import cn.mrcsh.zfmcserverpanelapi.service.SystemSettingsService;
+import cn.mrcsh.zfmcserverpanelapi.utils.FileUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +31,15 @@ public class ContainerServiceImpl implements ContainerService {
     @Autowired
     private ContainerManager containerManager;
 
+    @Autowired
+    private SystemSettingsService settingsService;
+
     @Override
-    public void createNewContainer(Container container) {
+    public Container createNewContainer(Container container) {
         container.setContainerId(IdUtil.getSnowflakeNextIdStr());
+        container.setWorkdir(settingsService.getSettings().getDataDir()+ "/" +container.getContainerId());
         containerMapper.insert(container);
+        return container;
     }
 
     @Override
@@ -68,6 +77,12 @@ public class ContainerServiceImpl implements ContainerService {
         }
         pageVo.setPageData(records);
         return pageVo;
+    }
+
+    @Override
+    public void saveToDataDir(String containerId, MultipartFile file) {
+        Container container = containerMapper.selectById(containerId);
+        FileUtils.saveToPath(file, new File(container.getWorkdir()));
     }
 
 

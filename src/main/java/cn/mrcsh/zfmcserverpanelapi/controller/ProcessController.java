@@ -33,8 +33,8 @@ public class ProcessController extends ABaseController{
 
     @PostMapping("/createNewContainer")
     public response createNewInstance(@RequestBody Container container){
-        containerService.createNewContainer(container);
-        return success();
+        Container newContainer = containerService.createNewContainer(container);
+        return success(newContainer);
     }
 
     @GetMapping("/start/{id}")
@@ -60,9 +60,8 @@ public class ProcessController extends ABaseController{
         containerManager.getContainerByContainerId(id).shutdown();
     }
 
-    @PostMapping("/uploadFile/{type}")
-    public void uploadFile(@PathVariable Integer type, MultipartFile file){
-        log.info(file.getOriginalFilename());
-        FileUtils.saveToPath(file, new File(settingsService.getSettings().getDataDir()));
+    @PostMapping("/uploadFile/{type}/{containerId}")
+    public void uploadFile(@PathVariable Integer type,@PathVariable String containerId, MultipartFile file){
+        containerService.saveToDataDir(containerId, file);
     }
 }
