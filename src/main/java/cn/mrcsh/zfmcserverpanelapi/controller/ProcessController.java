@@ -1,11 +1,16 @@
 package cn.mrcsh.zfmcserverpanelapi.controller;
 
+import cn.mrcsh.zfmcserverpanelapi.config.Constance;
+import cn.mrcsh.zfmcserverpanelapi.entity.dto.ContainerDTO;
+import cn.mrcsh.zfmcserverpanelapi.entity.enums.ErrorCode;
+import cn.mrcsh.zfmcserverpanelapi.entity.enums.FileType;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Command;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.PageVo;
 import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
 import cn.mrcsh.zfmcserverpanelapi.service.ContainerService;
 import cn.mrcsh.zfmcserverpanelapi.service.SystemSettingsService;
+import cn.mrcsh.zfmcserverpanelapi.utils.BeanUtils;
 import cn.mrcsh.zfmcserverpanelapi.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +37,11 @@ public class ProcessController extends ABaseController{
     private SystemSettingsService settingsService;
 
     @PostMapping("/createNewContainer")
-    public response createNewInstance(@RequestBody Container container){
+    public response createNewInstance(@RequestBody ContainerDTO containerDto) throws IllegalAccessException {
+        Container container = new Container();
+        BeanUtils.copyProperty(containerDto, container);
         Container newContainer = containerService.createNewContainer(container);
+        Constance.containerCreateTempMap.put(newContainer.getContainerId(), containerDto);
         return success(newContainer);
     }
 
@@ -61,7 +69,17 @@ public class ProcessController extends ABaseController{
     }
 
     @PostMapping("/uploadFile/{type}/{containerId}")
-    public void uploadFile(@PathVariable Integer type,@PathVariable String containerId, MultipartFile file){
+    public response uploadFile(@PathVariable Integer type,@PathVariable String containerId, MultipartFile file){
+
+        Integer include = FileType.isInclude(FileUtils.getFileSuffix(file.getOriginalFilename()));
+        if(!include.equals(type)){
+            return error(ErrorCode.FILE_TYPE_IS_NOT_EXISTS);
+        }
+
         containerService.saveToDataDir(containerId, file);
+        if (Constance.containerCreateTempMap.get(containerId).isAutoStart()) {
+            start(containerId);
+        }
+        return success();
     }
 }
