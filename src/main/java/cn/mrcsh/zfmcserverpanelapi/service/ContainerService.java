@@ -13,5 +13,5 @@ public interface ContainerService {
 
     PageVo<Container> getAllContainer(Integer current,String containerName);
 
-    void saveToDataDir(String containerId, MultipartFile file);
+
 }

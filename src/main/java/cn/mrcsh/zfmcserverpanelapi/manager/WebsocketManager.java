@@ -49,7 +49,11 @@ public class WebsocketManager {
             container.setQueue(new LinkedList<>());
         }
         for (String s : container.getQueue()) {
-            containerManager.sendToWS(container.getContainerId(), s, WSMessageType.LOG);
+            try {
+                containerManager.sendToWS(container.getContainerId(), s, WSMessageType.LOG);
+            }catch (Exception e){
+
+            }
         }
     }
 

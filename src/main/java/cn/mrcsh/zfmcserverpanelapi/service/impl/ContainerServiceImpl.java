@@ -37,7 +37,9 @@ public class ContainerServiceImpl implements ContainerService {
     @Override
     public Container createNewContainer(Container container) {
         container.setContainerId(IdUtil.getSnowflakeNextIdStr());
-        container.setWorkdir(settingsService.getSettings().getDataDir()+ "/" +container.getContainerId());
+        if(container.getWorkdir() == null){
+            container.setWorkdir(settingsService.getSettings().getDataDir()+ "/" +container.getContainerId());
+        }
         containerMapper.insert(container);
         return container;
     }
@@ -77,12 +79,6 @@ public class ContainerServiceImpl implements ContainerService {
         }
         pageVo.setPageData(records);
         return pageVo;
-    }
-
-    @Override
-    public void saveToDataDir(String containerId, MultipartFile file) {
-        Container container = containerMapper.selectById(containerId);
-        FileUtils.saveToPath(file, new File(container.getWorkdir()));
     }
 
 

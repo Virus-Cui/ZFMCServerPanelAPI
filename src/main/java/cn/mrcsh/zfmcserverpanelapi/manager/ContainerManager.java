@@ -116,16 +116,18 @@ public class ContainerManager {
             if (sessions != null) {
                 for (Session session : sessions) {
                     if (session != null) {
-                        WSMessage wsMessage = new WSMessage();
-                        wsMessage.setData(msg);
-                        wsMessage.setType(wsMessageType.getCode());
-                        session.getAsyncRemote().sendText(JSON.toJSONString(wsMessage));
-                        session.getAsyncRemote().flushBatch();
+                        synchronized (session){
+                            WSMessage wsMessage = new WSMessage();
+                            wsMessage.setData(msg);
+                            wsMessage.setType(wsMessageType.getCode());
+                            session.getAsyncRemote().sendText(JSON.toJSONString(wsMessage));
+                            session.getAsyncRemote().flushBatch();
+                        }
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("向ws客户端发送消息失败", e);
+//            log.error("向ws客户端发送消息失败", e);
         }
     }
 
