@@ -14,4 +14,5 @@ public interface ContainerService {
     PageVo<Container> getAllContainer(Integer current,String containerName);
 
 
+    void deleteContainerByContainerId(String containerId);
 }

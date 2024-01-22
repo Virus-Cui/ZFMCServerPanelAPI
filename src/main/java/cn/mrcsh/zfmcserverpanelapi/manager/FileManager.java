@@ -1,5 +1,6 @@
 package cn.mrcsh.zfmcserverpanelapi.manager;
 
+import cn.hutool.core.util.ZipUtil;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Chunk;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.SystemSettings;
@@ -11,6 +12,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -75,5 +77,15 @@ public class FileManager {
             // 合并
             FileUtils.union(tempPath, chunk.getPath(), chunk.getFileName(), true);
         }
+    }
+
+    public boolean unzipFile(String containerId, @RequestBody String fileName) {
+        String workdir = containerMapper.selectById(containerId).getWorkdir();
+        File zipFile = new File(workdir, fileName);
+        if(!zipFile.exists()){
+            return false;
+        }
+        ZipUtil.unzip(zipFile, new File(workdir));
+        return true;
     }
 }

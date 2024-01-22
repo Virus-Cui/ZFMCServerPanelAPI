@@ -81,5 +81,10 @@ public class ContainerServiceImpl implements ContainerService {
         return pageVo;
     }
 
+    @Override
+    public void deleteContainerByContainerId(String containerId) {
+        containerMapper.deleteById(containerId);
+    }
+
 
 }

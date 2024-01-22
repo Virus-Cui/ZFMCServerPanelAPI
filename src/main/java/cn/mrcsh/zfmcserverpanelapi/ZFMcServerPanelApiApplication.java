@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
+@EnableAsync
 @MapperScan("cn.mrcsh.zfmcserverpanelapi.mapper")
 public class ZFMcServerPanelApiApplication {
 

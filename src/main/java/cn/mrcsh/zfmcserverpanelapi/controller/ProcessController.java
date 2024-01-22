@@ -1,5 +1,6 @@
 package cn.mrcsh.zfmcserverpanelapi.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.mrcsh.zfmcserverpanelapi.config.Constance;
 import cn.mrcsh.zfmcserverpanelapi.entity.dto.ContainerDTO;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.ErrorCode;
@@ -62,6 +63,7 @@ public class ProcessController extends ABaseController {
     }
 
     @GetMapping("/all/{currentPage}")
+    @SaCheckLogin
     public response allContainer(@PathVariable Integer currentPage, String containerName) {
         PageVo<Container> pageVo = containerService.getAllContainer(currentPage, containerName);
         return success(pageVo);
@@ -70,5 +72,11 @@ public class ProcessController extends ABaseController {
     @GetMapping("/dis/{id}")
     public void dis(@PathVariable String id) {
         containerManager.getContainerByContainerId(id).shutdown();
+    }
+
+    @GetMapping("/del/{containerId}")
+    public response deleteContainer(@PathVariable String containerId){
+        containerService.deleteContainerByContainerId(containerId);
+        return success();
     }
 }
