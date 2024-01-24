@@ -95,10 +95,10 @@ public class ContainerManager {
         new Thread(() -> {
             while (true) {
                 if (!exec.isAlive()) {
-                    sendToWS(container.getContainerId(), "进程退出", WSMessageType.STATUS);
                     container.setOldlog(JSON.toJSONString(container.getQueue()));
                     containerMapper.updateById(container);
                     containerLinkedHashMap.remove(container.getContainerId());
+                    sendToWS(container.getContainerId(), "进程退出", WSMessageType.STATUS);
                     break;
                 }
 

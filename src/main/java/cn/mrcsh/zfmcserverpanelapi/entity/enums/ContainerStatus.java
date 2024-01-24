@@ -3,6 +3,7 @@ package cn.mrcsh.zfmcserverpanelapi.entity.enums;
 public enum ContainerStatus {
     RUNNING(1,"正在运行"),
     STOP(0,"停止"),
+    STOPING(3,"正在停止"),
     STARTING(2,"正在启动")
     ;
     private Integer code;

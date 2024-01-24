@@ -3,11 +3,13 @@ package cn.mrcsh.zfmcserverpanelapi.service.impl;
 import cn.hutool.core.util.IdUtil;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.ContainerStatus;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
+import cn.mrcsh.zfmcserverpanelapi.entity.vo.ContainerVo;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.PageVo;
 import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
 import cn.mrcsh.zfmcserverpanelapi.mapper.ContainerMapper;
 import cn.mrcsh.zfmcserverpanelapi.service.ContainerService;
 import cn.mrcsh.zfmcserverpanelapi.service.SystemSettingsService;
+import cn.mrcsh.zfmcserverpanelapi.utils.BeanUtils;
 import cn.mrcsh.zfmcserverpanelapi.utils.FileUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +40,8 @@ public class ContainerServiceImpl implements ContainerService {
     @Override
     public Container createNewContainer(Container container) {
         container.setContainerId(IdUtil.getSnowflakeNextIdStr());
-        if(container.getWorkdir() == null){
-            container.setWorkdir(settingsService.getSettings().getDataDir()+ "/" +container.getContainerId());
+        if (container.getWorkdir() == null) {
+            container.setWorkdir(settingsService.getSettings().getDataDir() + "/" + container.getContainerId());
         }
         containerMapper.insert(container);
         return container;
@@ -59,7 +62,7 @@ public class ContainerServiceImpl implements ContainerService {
     public PageVo<Container> getAllContainer(Integer current, String containerName) {
         QueryWrapper<Container> wrapper = new QueryWrapper<>();
         wrapper
-                .like("container_name", "%"+containerName+"%");
+                .like("container_name", "%" + containerName + "%");
         Page<Container> page = new Page<>(current, 10);
         containerMapper.selectPage(page, wrapper);
         PageVo<Container> pageVo = new PageVo<>();
@@ -71,7 +74,7 @@ public class ContainerServiceImpl implements ContainerService {
         LinkedHashMap<String, Container> runningContainer = containerManager.getRunningContainer();
         for (Map.Entry<String, Container> entry : runningContainer.entrySet()) {
             for (Container record : records) {
-                if(entry.getKey().equals(record.getContainerId())){
+                if (entry.getKey().equals(record.getContainerId())) {
                     record.setStatus(entry.getValue().getStatus());
                     record.setPid(entry.getValue().getPid());
                 }
@@ -84,6 +87,40 @@ public class ContainerServiceImpl implements ContainerService {
     @Override
     public void deleteContainerByContainerId(String containerId) {
         containerMapper.deleteById(containerId);
+    }
+
+    @Override
+    public void stopContainer(String id) {
+        Container container = containerManager.getRunningContainer().get(id);
+        container.setStatus(ContainerStatus.STOPING);
+        if (container.getStopCmd().equals("^C")) {
+            container.shutdown();
+            return;
+        }
+        container.sendCommand(container.getStopCmd());
+    }
+
+    @Override
+    public ContainerVo getOne(String id) {
+        ContainerVo containerVo;
+        try {
+            Container container = containerManager.getRunningContainer().get(id);
+            containerVo = new ContainerVo();
+            if (container == null) {
+                container = containerMapper.selectById(id);
+                container.setStatus(ContainerStatus.STOP);
+            }
+            BeanUtils.copyProperty(container, containerVo);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        return containerVo;
+    }
+
+    @Override
+    public void deleteBatch(List<String> ids) {
+        containerMapper.deleteBatchIds(ids);
     }
 
 

@@ -23,7 +23,7 @@ public class FileController extends ABaseController{
     }
 
     @PostMapping("/unzip")
-    @SaCheckLogin
+//    @SaCheckLogin
     public response unzip(UnZipFileDTO unZipFileDTO){
         boolean b = fileManager.unzipFile(unZipFileDTO.getContainerId(), unZipFileDTO.getFileName());
         return success(b);

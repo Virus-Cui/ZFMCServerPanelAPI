@@ -7,6 +7,7 @@ import cn.mrcsh.zfmcserverpanelapi.entity.enums.ErrorCode;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.FileType;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Command;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
+import cn.mrcsh.zfmcserverpanelapi.entity.vo.ContainerVo;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.PageVo;
 import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
 import cn.mrcsh.zfmcserverpanelapi.manager.FileManager;
@@ -56,6 +57,12 @@ public class ProcessController extends ABaseController {
         return success();
     }
 
+    @GetMapping("/stop/{id}")
+    public response stop(@PathVariable String id){
+        containerService.stopContainer(id);
+        return success();
+    }
+
     @PostMapping("/cmd/{id}")
     public response execCmd(@PathVariable String id, @RequestBody Command command) {
         containerManager.getContainerByContainerId(id).sendCommand(command.getCmd() == null ? "" : command.getCmd());
@@ -77,6 +84,18 @@ public class ProcessController extends ABaseController {
     @GetMapping("/del/{containerId}")
     public response deleteContainer(@PathVariable String containerId){
         containerService.deleteContainerByContainerId(containerId);
+        return success();
+    }
+
+    @GetMapping("/one/{id}")
+    public response one(@PathVariable String id){
+        ContainerVo container = containerService.getOne(id);
+       return success(container);
+    }
+
+    @PostMapping("/delBatch")
+    public response delBatch(@RequestBody List<String> ids){
+        containerService.deleteBatch(ids);
         return success();
     }
 }
