@@ -40,7 +40,7 @@ public class WebsocketManager {
         Container container = null;
         // 在存活实例列表中寻找
         container = containerManager.getContainerByContainerId(id);
-        if(container == null){
+        if (container == null) {
             container = containerMapper.selectById(id);
             container.setQueue(JSON.parseObject(container.getOldlog(), new TypeReference<LinkedList<String>>() {
             }));
@@ -50,8 +50,9 @@ public class WebsocketManager {
         }
         for (String s : container.getQueue()) {
             try {
-                containerManager.sendToWS(container.getContainerId(), s, WSMessageType.LOG);
-            }catch (Exception e){
+                containerManager.sendToSimpleWS(session, s, WSMessageType.LOG);
+                containerManager.sendToSimpleWS(session, "stop", WSMessageType.STATUS);
+            } catch (Exception e) {
 
             }
         }

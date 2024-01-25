@@ -9,6 +9,7 @@ import cn.mrcsh.zfmcserverpanelapi.entity.structure.Command;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.ContainerVo;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.PageVo;
+import cn.mrcsh.zfmcserverpanelapi.manager.BeanManager;
 import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
 import cn.mrcsh.zfmcserverpanelapi.manager.FileManager;
 import cn.mrcsh.zfmcserverpanelapi.service.ContainerService;
@@ -17,6 +18,7 @@ import cn.mrcsh.zfmcserverpanelapi.utils.BeanUtils;
 import cn.mrcsh.zfmcserverpanelapi.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -97,5 +99,24 @@ public class ProcessController extends ABaseController {
     public response delBatch(@RequestBody List<String> ids){
         containerService.deleteBatch(ids);
         return success();
+    }
+
+    @PostMapping("/update")
+    public response update(@RequestBody ContainerDTO containerDTO) throws IllegalAccessException {
+        Container container = new Container();
+        BeanUtils.copyProperty(containerDTO, container);
+        containerService.update(container);
+        return success();
+    }
+
+    @PostMapping("/startBatch")
+    @Async
+    public void startBatch(@RequestBody List<String> ids){
+        containerService.startBatch(ids);
+    }
+
+    @PostMapping("/stopBatch")
+    public void stopBatch(@RequestBody List<String> ids){
+        containerService.stopBatch(ids);
     }
 }

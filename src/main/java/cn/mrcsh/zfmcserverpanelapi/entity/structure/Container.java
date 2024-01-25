@@ -61,6 +61,10 @@ public class Container {
 
     public void shutdown() {
         log.info("正在关闭实例:{}",containerId);
+        if(this.getStopCmd() != null){
+            sendCommand(this.getStopCmd());
+            return;
+        }
         this.process.destroyForcibly();
         try {
             if (errorStream != null) errorStream.close();

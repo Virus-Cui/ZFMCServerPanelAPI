@@ -22,4 +22,9 @@ public interface ContainerService {
     ContainerVo getOne(String id);
 
     void deleteBatch(List<String> ids);
+
+    void update(Container container);
+
+    void startBatch(List<String> ids);
+    void stopBatch(List<String> ids);
 }

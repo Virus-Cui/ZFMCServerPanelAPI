@@ -123,5 +123,28 @@ public class ContainerServiceImpl implements ContainerService {
         containerMapper.deleteBatchIds(ids);
     }
 
+    @Override
+    public void update(Container container) {
+        containerMapper.updateById(container);
+    }
 
+    @Override
+    public void startBatch(List<String> ids) {
+        try {
+            for (String id : ids) {
+                containerManager.exec(containerMapper.selectById(id));
+                Thread.sleep(5000);
+            }
+        } catch (Exception e) {
+            log.error("批量开启失败",e);
+        }
+    }
+
+    @Override
+    public void stopBatch(List<String> ids){
+        for (String id : ids) {
+            containerManager.getContainerByContainerId(id).shutdown();
+        }
+
+    }
 }

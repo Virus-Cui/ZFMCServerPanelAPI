@@ -32,12 +32,18 @@ public class ContainerManager {
     private final String NOMALE = "<span style='color: #FFF'>%s</span>";
 
     public void exec(Container container) throws IOException {
+        Container containerByContainerId = getContainerByContainerId(container.getContainerId());
+        if(containerByContainerId != null && (containerByContainerId.getStatus().equals(ContainerStatus.STARTING) || containerByContainerId.getStatus().equals(ContainerStatus.RUNNING))){
+            return;
+        }
         container.setStatus(ContainerStatus.STARTING);
+        sendToWS(container.getContainerId(), "STARTING", WSMessageType.STATUS);
         Process exec = Runtime.getRuntime().exec(container.getCmd(), new String[]{}, new File(container.getWorkdir()));
         new Thread(() -> {
             try {
                 Thread.sleep(3000);
                 container.setStatus(ContainerStatus.RUNNING);
+                sendToWS(container.getContainerId(), "RUNNING", WSMessageType.STATUS);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -116,7 +122,7 @@ public class ContainerManager {
             if (sessions != null) {
                 for (Session session : sessions) {
                     if (session != null) {
-                        synchronized (session){
+                        synchronized (session) {
                             WSMessage wsMessage = new WSMessage();
                             wsMessage.setData(msg);
                             wsMessage.setType(wsMessageType.getCode());
@@ -129,6 +135,20 @@ public class ContainerManager {
         } catch (Exception e) {
 //            log.error("向ws客户端发送消息失败", e);
         }
+
+    }
+
+    public void sendToSimpleWS(Session session, String msg, WSMessageType wsMessageType) {
+        try {
+            WSMessage wsMessage = new WSMessage();
+            wsMessage.setData(msg);
+            wsMessage.setType(wsMessageType.getCode());
+            session.getAsyncRemote().sendText(JSON.toJSONString(wsMessage));
+            session.getAsyncRemote().flushBatch();
+        } catch (Exception e) {
+//            log.error("向ws客户端发送消息失败", e);
+        }
+
     }
 
     public LinkedHashMap<String, Container> getRunningContainer() {
