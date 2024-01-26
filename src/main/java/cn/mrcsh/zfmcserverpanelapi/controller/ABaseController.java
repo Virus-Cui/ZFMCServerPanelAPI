@@ -19,6 +19,14 @@ public class ABaseController {
         return response;
     }
 
+    public response success(Object data, ErrorCode errorCode){
+        response response = new response();
+        response.setCode(errorCode.getCode());
+        response.setMsg(errorCode.getMsg());
+        response.setData(data);
+        return response;
+    }
+
     public response success(){
         response response = new response();
         response.setData(null);

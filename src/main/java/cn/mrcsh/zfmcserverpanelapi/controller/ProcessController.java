@@ -1,6 +1,7 @@
 package cn.mrcsh.zfmcserverpanelapi.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.mrcsh.zfmcserverpanelapi.annotation.APISupervisory;
 import cn.mrcsh.zfmcserverpanelapi.config.Constance;
 import cn.mrcsh.zfmcserverpanelapi.entity.dto.ContainerDTO;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.ErrorCode;
@@ -45,6 +46,7 @@ public class ProcessController extends ABaseController {
     private FileManager fileManager;
 
     @PostMapping("/createNewContainer")
+    @APISupervisory("container")
     public response createNewInstance(@RequestBody ContainerDTO containerDto) throws IllegalAccessException {
         Container container = new Container();
         BeanUtils.copyProperty(containerDto, container);
@@ -54,18 +56,21 @@ public class ProcessController extends ABaseController {
     }
 
     @GetMapping("/start/{id}")
+    @APISupervisory("container")
     public response start(@PathVariable String id) {
         containerService.startContainer(id);
         return success();
     }
 
     @GetMapping("/stop/{id}")
-    public response stop(@PathVariable String id){
+    @APISupervisory("container")
+    public response stop(@PathVariable String id) {
         containerService.stopContainer(id);
         return success();
     }
 
     @PostMapping("/cmd/{id}")
+    @APISupervisory("container")
     public response execCmd(@PathVariable String id, @RequestBody Command command) {
         containerManager.getContainerByContainerId(id).sendCommand(command.getCmd() == null ? "" : command.getCmd());
         return success();
@@ -73,35 +78,41 @@ public class ProcessController extends ABaseController {
 
     @GetMapping("/all/{currentPage}")
     @SaCheckLogin
+    @APISupervisory("container")
     public response allContainer(@PathVariable Integer currentPage, String containerName) {
         PageVo<Container> pageVo = containerService.getAllContainer(currentPage, containerName);
         return success(pageVo);
     }
 
     @GetMapping("/dis/{id}")
+    @APISupervisory("container")
     public void dis(@PathVariable String id) {
         containerManager.getContainerByContainerId(id).shutdown();
     }
 
     @GetMapping("/del/{containerId}")
-    public response deleteContainer(@PathVariable String containerId){
+    @APISupervisory("container")
+    public response deleteContainer(@PathVariable String containerId) {
         containerService.deleteContainerByContainerId(containerId);
         return success();
     }
 
     @GetMapping("/one/{id}")
-    public response one(@PathVariable String id){
+    @APISupervisory("container")
+    public response one(@PathVariable String id) {
         ContainerVo container = containerService.getOne(id);
-       return success(container);
+        return success(container);
     }
 
     @PostMapping("/delBatch")
-    public response delBatch(@RequestBody List<String> ids){
+    @APISupervisory("container")
+    public response delBatch(@RequestBody List<String> ids) {
         containerService.deleteBatch(ids);
         return success();
     }
 
     @PostMapping("/update")
+    @APISupervisory("container")
     public response update(@RequestBody ContainerDTO containerDTO) throws IllegalAccessException {
         Container container = new Container();
         BeanUtils.copyProperty(containerDTO, container);
@@ -111,12 +122,14 @@ public class ProcessController extends ABaseController {
 
     @PostMapping("/startBatch")
     @Async
-    public void startBatch(@RequestBody List<String> ids){
+    @APISupervisory("container")
+    public void startBatch(@RequestBody List<String> ids) {
         containerService.startBatch(ids);
     }
 
     @PostMapping("/stopBatch")
-    public void stopBatch(@RequestBody List<String> ids){
+    @APISupervisory("container")
+    public void stopBatch(@RequestBody List<String> ids) {
         containerService.stopBatch(ids);
     }
 }

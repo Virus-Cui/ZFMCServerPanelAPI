@@ -4,6 +4,7 @@ public enum ErrorCode {
 
     FILE_TYPE_IS_NOT_EXISTS(4001, "文件格式不正确"),
     NOT_LOGIN(5001, "没有登录"),
+    UPLOAD_SUCCESS(2001, "上传成功"),
     SERVER_ERROR(5000, "服务器错误"), NOT_FOUNT(4004, "未知接口或资源");
     private Integer code;
     private String msg;
