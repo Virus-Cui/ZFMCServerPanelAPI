@@ -21,12 +21,21 @@ public class APISupervisoryProxy {
 
     @Around("point()")
     public Object before(ProceedingJoinPoint pjp) throws Throwable {
-        Object proceed = pjp.proceed();
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
         Method method = methodSignature.getMethod();
         String type = method.getAnnotation(APISupervisory.class).value();
+        addToType(type);
         Cache.cacheCount.put(type, Cache.cacheCount.get(type) == null ? 1 : Cache.cacheCount.get(type) + 1);
-        return proceed;
+        return pjp.proceed();
 
+    }
+
+    public void addToType(String type){
+        for (String s : Cache.types) {
+            if(s.equals(type)){
+               return;
+            }
+        }
+        Cache.types.add(type);
     }
 }

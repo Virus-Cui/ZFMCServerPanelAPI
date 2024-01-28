@@ -17,7 +17,7 @@ public class EchartsVo {
     public static class DataStructure {
         private String name;
         private String type;
-        private String stack = "Total";
+        private String areaStyle = "";
         private Queue<Integer> data;
     }
 }

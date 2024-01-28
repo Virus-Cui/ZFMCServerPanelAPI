@@ -21,6 +21,9 @@ public class APIExecuteSupervisoryTask {
         queueData.setData(Cache.cacheCount);
         Cache.resQueue.add(queueData);
         Cache.cacheCount = new HashMap<>();
+        for (String type : Cache.types) {
+            Cache.cacheCount.put(type, 0);
+        }
 
     }
 }

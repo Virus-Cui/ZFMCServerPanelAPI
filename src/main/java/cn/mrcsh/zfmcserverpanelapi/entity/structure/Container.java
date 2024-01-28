@@ -61,7 +61,7 @@ public class Container {
 
     public void shutdown() {
         log.info("正在关闭实例:{}",containerId);
-        if(this.getStopCmd() != null){
+        if(!this.getStopCmd().equals("^C")){
             sendCommand(this.getStopCmd());
             return;
         }

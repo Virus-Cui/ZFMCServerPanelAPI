@@ -19,23 +19,29 @@ public class APISupervisoryController extends ABaseController {
     @GetMapping("/load")
     @APISupervisory("监控")
     public response load() {
+        Integer minute = Calendar.getInstance().get(Calendar.MINUTE);
         EchartsVo echartsVo = new EchartsVo();
         Queue<QueueData<HashMap<String, Integer>>> queueData = new LinkedList<>(Cache.resQueue);
         QueueData<HashMap<String, Integer>> qd = new QueueData<>();
         qd.setData(Cache.cacheCount);
-        qd.setMinute(Calendar.getInstance().get(Calendar.MINUTE));
+        qd.setMinute(minute);
         queueData.add(qd);
         LinkedList<String> xAxis = new LinkedList<>();
         LinkedList<String> types = new LinkedList<>();
         for (QueueData<HashMap<String, Integer>> queueDatum : queueData) {
+
             xAxis.add(String.valueOf(queueDatum.getMinute()));
             types.addAll(queueDatum.getData().keySet());
         }
+
+        xAxis.removeLast();
+        xAxis.add("现在");
 
 
         // 某个接口 全部时间点所有数据
         List<EchartsVo.DataStructure> dataStructures = new ArrayList<>();
         LinkedHashMap<String, List<Integer>> hashMap = new LinkedHashMap<>();
+
         for (QueueData<HashMap<String, Integer>> queueDatum : queueData) {
             for (Map.Entry<String, Integer> entry : queueDatum.getData().entrySet()) {
                 hashMap.computeIfAbsent(entry.getKey(), k -> new ArrayList<>());
@@ -46,7 +52,7 @@ public class APISupervisoryController extends ABaseController {
         for (Map.Entry<String, List<Integer>> entry : hashMap.entrySet()) {
             EchartsVo.DataStructure dataStructure = new EchartsVo.DataStructure();
             Queue<Integer> queue = new ArrayDeque<>();
-            if(entry.getValue().size() < 12){
+            if (entry.getValue().size() <= 12) {
                 for (int i = 0; i < 12; i++) {
                     queue.add(0);
                 }
@@ -62,11 +68,9 @@ public class APISupervisoryController extends ABaseController {
         }
 
 
-
         echartsVo.setXAxis(xAxis);
         echartsVo.setTypes(types);
         echartsVo.setData(dataStructures);
-
 
 
         return success(echartsVo);

@@ -1,5 +1,6 @@
 package cn.mrcsh.zfmcserverpanelapi.manager;
 
+import cn.mrcsh.zfmcserverpanelapi.annotation.APISupervisory;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.ContainerStatus;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.WSMessageType;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
@@ -116,6 +117,7 @@ public class ContainerManager {
         return containerLinkedHashMap.get(id);
     }
 
+    @APISupervisory("ws接口")
     public void sendToWS(String containerId, String msg, WSMessageType wsMessageType) {
         try {
             List<Session> sessions = WebsocketManager.SESSION_POOL.get(containerId);
@@ -138,6 +140,7 @@ public class ContainerManager {
 
     }
 
+    @APISupervisory("ws接口")
     public void sendToSimpleWS(Session session, String msg, WSMessageType wsMessageType) {
         try {
             WSMessage wsMessage = new WSMessage();

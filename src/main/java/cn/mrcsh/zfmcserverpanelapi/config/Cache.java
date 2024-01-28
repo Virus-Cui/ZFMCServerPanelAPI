@@ -25,4 +25,6 @@ public class Cache {
             resQueue.add(queueData);
         }
     }
+
+    public static LinkedList<String> types = new LinkedList<>();
 }
