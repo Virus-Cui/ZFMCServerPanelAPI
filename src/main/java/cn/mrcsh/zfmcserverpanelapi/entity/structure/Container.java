@@ -52,6 +52,8 @@ public class Container {
     private String lastType;
     @TableField(exist = false)
     private Queue<String> queue;
+    // 字符集
+    private String encode;
 
     public void initStream() {
         this.setErrorStream(process.getErrorStream());

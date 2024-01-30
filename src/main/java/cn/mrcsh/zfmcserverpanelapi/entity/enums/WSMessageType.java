@@ -3,8 +3,8 @@ package cn.mrcsh.zfmcserverpanelapi.entity.enums;
 public enum WSMessageType {
     LOG(0,"日志"),
     NOTIFY(1,"通知"),
-    STATUS(2,"状态")
-    ;
+    STATUS(2,"状态"),
+    UPDATE_CHART(3, "更新图表");
     private Integer code;
     private String desc;
 

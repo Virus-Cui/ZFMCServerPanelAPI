@@ -1,7 +1,10 @@
 package cn.mrcsh.zfmcserverpanelapi.task;
 
 import cn.mrcsh.zfmcserverpanelapi.config.Cache;
+import cn.mrcsh.zfmcserverpanelapi.entity.enums.WSMessageType;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.QueueData;
+import cn.mrcsh.zfmcserverpanelapi.manager.GlobalMessagingManage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +12,12 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 @Component
+
 public class APIExecuteSupervisoryTask {
+
+    @Autowired
+    private GlobalMessagingManage globalMessagingManage;
+
     @Scheduled(cron = "0 */5 * * * ?")
     public void exec(){
         int size = Cache.resQueue.size();
@@ -24,6 +32,6 @@ public class APIExecuteSupervisoryTask {
         for (String type : Cache.types) {
             Cache.cacheCount.put(type, 0);
         }
-
+        globalMessagingManage.sendToPanel("update chart", WSMessageType.UPDATE_CHART);
     }
 }

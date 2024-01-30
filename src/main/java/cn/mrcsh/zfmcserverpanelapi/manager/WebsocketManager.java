@@ -51,11 +51,11 @@ public class WebsocketManager {
         for (String s : container.getQueue()) {
             try {
                 containerManager.sendToSimpleWS(session, s, WSMessageType.LOG);
-                containerManager.sendToSimpleWS(session, "stop", WSMessageType.STATUS);
             } catch (Exception e) {
 
             }
         }
+        containerManager.sendToSimpleWS(session, "stop", WSMessageType.STATUS);
     }
 
 

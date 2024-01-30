@@ -17,7 +17,7 @@ import java.util.*;
 public class APISupervisoryController extends ABaseController {
 
     @GetMapping("/load")
-    @APISupervisory("监控")
+    @APISupervisory("监控接口")
     public response load() {
         Integer minute = Calendar.getInstance().get(Calendar.MINUTE);
         EchartsVo echartsVo = new EchartsVo();
@@ -74,6 +74,11 @@ public class APISupervisoryController extends ABaseController {
 
 
         return success(echartsVo);
+    }
+
+    @GetMapping("test")
+    public void test() {
+        Cache.cacheCount.put("监控接口", Cache.cacheCount.get("监控接口") + 1);
     }
 
 }

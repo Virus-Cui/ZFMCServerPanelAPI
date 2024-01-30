@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +40,12 @@ public class ContainerManager {
         }
         container.setStatus(ContainerStatus.STARTING);
         sendToWS(container.getContainerId(), "STARTING", WSMessageType.STATUS);
-        Process exec = Runtime.getRuntime().exec(container.getCmd(), new String[]{}, new File(container.getWorkdir()));
+        String StartCmd = container.getCmd();
+        String[] cmd = {"cmd","/c",container.getCmd()};
+        if(StartCmd.startsWith("java") || StartCmd.startsWith("python")){
+            cmd = new String[]{StartCmd};
+        }
+        Process exec = Runtime.getRuntime().exec(cmd, new String[]{}, new File(container.getWorkdir()));
         new Thread(() -> {
             try {
                 Thread.sleep(3000);
@@ -62,7 +68,7 @@ public class ContainerManager {
         new Thread(() -> {
             try {
                 InputStream inputStream = container.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, System.getProperty("sun.jnu.encoding")));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, container.getEncode()));
                 String str;
                 while ((str = reader.readLine()) != null) {
                     String log = "";
