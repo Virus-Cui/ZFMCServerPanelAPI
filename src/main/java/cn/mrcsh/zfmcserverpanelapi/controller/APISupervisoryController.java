@@ -2,8 +2,11 @@ package cn.mrcsh.zfmcserverpanelapi.controller;
 
 import cn.mrcsh.zfmcserverpanelapi.annotation.APISupervisory;
 import cn.mrcsh.zfmcserverpanelapi.config.Cache;
+import cn.mrcsh.zfmcserverpanelapi.entity.enums.WSMessageType;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.QueueData;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.EchartsVo;
+import cn.mrcsh.zfmcserverpanelapi.manager.GlobalMessagingManage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +18,9 @@ import java.util.*;
 @CrossOrigin
 @RequestMapping("/supervisory")
 public class APISupervisoryController extends ABaseController {
+
+    @Autowired
+    private GlobalMessagingManage globalMessagingManage;
 
     @GetMapping("/load")
     @APISupervisory("监控接口")
@@ -79,6 +85,7 @@ public class APISupervisoryController extends ABaseController {
     @GetMapping("test")
     public void test() {
         Cache.cacheCount.put("监控接口", Cache.cacheCount.get("监控接口") + 1);
+        globalMessagingManage.sendToPanel("更新图表", WSMessageType.UPDATE_CHART);
     }
 
 }

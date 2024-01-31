@@ -29,14 +29,12 @@ public class GlobalMessagingManage {
 
     @OnOpen
     public void onOpen(Session session) {
-        log.info("创建连接:{}", session.getId());
         addToSessionPool(session);
     }
 
 
     @OnClose
     public void onClose(Session session) {
-        log.warn("连接断开:{}", session.getId());
         SESSION_POOL.remove(session);
     }
 
@@ -51,7 +49,7 @@ public class GlobalMessagingManage {
         wsMessage.setTime(System.currentTimeMillis());
         wsMessage.setType(type.getCode());
         for (Session session : SESSION_POOL) {
-            session.getAsyncRemote().sendObject(wsMessage);
+            session.getAsyncRemote().sendText(JSON.toJSONString(wsMessage));
         }
     }
 }

@@ -35,7 +35,6 @@ public class WebsocketManager {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("id") String id) {
-        log.info("创建连接:{}", session.getId());
         addToSessionPool(session, id);
         Container container = null;
         // 在存活实例列表中寻找
@@ -61,7 +60,6 @@ public class WebsocketManager {
 
     @OnClose
     public void onClose(Session session) {
-        log.warn("连接断开:{}", session.getId());
         for (Map.Entry<String, List<Session>> entry : SESSION_POOL.entrySet()) {
             entry.getValue().remove(session);
         }

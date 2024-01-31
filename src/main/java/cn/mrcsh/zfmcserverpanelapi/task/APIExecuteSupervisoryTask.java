@@ -32,6 +32,6 @@ public class APIExecuteSupervisoryTask {
         for (String type : Cache.types) {
             Cache.cacheCount.put(type, 0);
         }
-        globalMessagingManage.sendToPanel("update chart", WSMessageType.UPDATE_CHART);
+        globalMessagingManage.sendToPanel("UPDATE_CHART", WSMessageType.UPDATE_CHART);
     }
 }
