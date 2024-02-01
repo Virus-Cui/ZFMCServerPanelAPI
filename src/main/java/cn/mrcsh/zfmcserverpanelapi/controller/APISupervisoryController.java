@@ -5,7 +5,9 @@ import cn.mrcsh.zfmcserverpanelapi.config.Cache;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.WSMessageType;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.QueueData;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.EchartsVo;
+import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
 import cn.mrcsh.zfmcserverpanelapi.manager.GlobalMessagingManage;
+import cn.mrcsh.zfmcserverpanelapi.utils.SysOccUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +24,13 @@ public class APISupervisoryController extends ABaseController {
     @Autowired
     private GlobalMessagingManage globalMessagingManage;
 
+    @Autowired
+    private ContainerManager containerManager;
+
     @GetMapping("/load")
     @APISupervisory("监控接口")
     public response load() {
+        Map<String, Object> resultMap = new HashMap<>();
         Integer minute = Calendar.getInstance().get(Calendar.MINUTE);
         EchartsVo echartsVo = new EchartsVo();
         Queue<QueueData<HashMap<String, Integer>>> queueData = new LinkedList<>(Cache.resQueue);
@@ -36,7 +42,7 @@ public class APISupervisoryController extends ABaseController {
         LinkedList<String> types = new LinkedList<>();
         for (QueueData<HashMap<String, Integer>> queueDatum : queueData) {
 
-            xAxis.add(String.valueOf(queueDatum.getMinute()));
+            xAxis.add(String.valueOf(queueDatum.getMinute())+"分钟前");
             types.addAll(queueDatum.getData().keySet());
         }
 
@@ -78,8 +84,49 @@ public class APISupervisoryController extends ABaseController {
         echartsVo.setTypes(types);
         echartsVo.setData(dataStructures);
 
-
-        return success(echartsVo);
+        resultMap.put("apis", echartsVo);
+        // CPU占用
+        EchartsVo cpu = new EchartsVo();
+        cpu.setXAxis(xAxis);
+        cpu.setTypes(List.of("CPU"));
+        EchartsVo.DataStructure dataStructure = new EchartsVo.DataStructure();
+        dataStructure.setType("line");
+        dataStructure.setName("CPU占用率");
+        dataStructure.setAreaStyle("");
+        Queue<Integer> cpuUsage = new ArrayDeque<>(Cache.CPUUsage);
+        //TODO 获取CPU实时占用
+        cpuUsage.add(SysOccUtils.getCPU());
+        dataStructure.setData(cpuUsage);
+        cpu.setData(List.of(dataStructure));
+        resultMap.put("cpu",cpu);
+        // 内存占用
+        EchartsVo mem = new EchartsVo();
+        mem.setXAxis(xAxis);
+        mem.setTypes(List.of("MEM"));
+        EchartsVo.DataStructure memData = new EchartsVo.DataStructure();
+        memData.setType("line");
+        memData.setName("内存占用率");
+        memData.setAreaStyle("");
+        Queue<Integer> memUsage = new ArrayDeque<>(Cache.MemUsage);
+        //TODO 获取内存实时占用
+        memUsage.add(SysOccUtils.getMem());
+        memData.setData(memUsage);
+        mem.setData(List.of(memData));
+        resultMap.put("mem", mem);
+        // 存活实例
+        EchartsVo ac = new EchartsVo();
+        ac.setXAxis(xAxis);
+        ac.setTypes(List.of("实例"));
+        EchartsVo.DataStructure acData = new EchartsVo.DataStructure();
+        acData.setType("line");
+        acData.setName("在线实例实例");
+        acData.setAreaStyle("");
+        Queue<Integer> acAliveQueue = new ArrayDeque<>(Cache.ContainerAlive);
+        acAliveQueue.add(containerManager.getRunningContainer().size());
+        acData.setData(acAliveQueue);
+        ac.setData(List.of(acData));
+        resultMap.put("container", ac);
+        return success(resultMap);
     }
 
     @GetMapping("test")
