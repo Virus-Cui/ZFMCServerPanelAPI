@@ -41,7 +41,7 @@ public class ContainerManager {
         container.setStatus(ContainerStatus.STARTING);
         sendToWS(container.getContainerId(), "STARTING", WSMessageType.STATUS);
         String StartCmd = container.getCmd();
-        String[] cmd = {"cmd","/c",container.getCmd()};
+        String[] cmd = {"cmd","/c",StartCmd};
         if(StartCmd.startsWith("java") || StartCmd.startsWith("python")){
             cmd = new String[]{StartCmd};
         }
