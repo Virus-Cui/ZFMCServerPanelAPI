@@ -77,7 +77,7 @@ public class ProcessController extends ABaseController {
     }
 
     @GetMapping("/all/{currentPage}")
-    @SaCheckLogin
+//    @SaCheckLogin
     @APISupervisory("实例接口")
     public response allContainer(@PathVariable Integer currentPage, String containerName) {
         PageVo<Container> pageVo = containerService.getAllContainer(currentPage, containerName);
