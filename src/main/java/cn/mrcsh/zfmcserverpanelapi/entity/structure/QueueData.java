@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class QueueData<T> {
-    private Integer minute;
+    private String minute;
     private T data;
 }

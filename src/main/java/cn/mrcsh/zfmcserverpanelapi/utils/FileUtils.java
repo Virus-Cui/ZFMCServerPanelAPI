@@ -1,47 +1,52 @@
 package cn.mrcsh.zfmcserverpanelapi.utils;
 
 import cn.hutool.core.io.FileUtil;
+import cn.mrcsh.zfmcserverpanelapi.entity.enums.FileType;
+import cn.mrcsh.zfmcserverpanelapi.entity.vo.FileVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 @Slf4j
 public class FileUtils {
-    public static String getFileSuffix(File file){
+    public static String getFileSuffix(File file) {
         String name = file.getName();
-        return name.substring(name.lastIndexOf("."));
+        return name.substring(name.lastIndexOf(".")==-1?0:name.lastIndexOf("."));
     }
 
-    public static String getFileName(File file){
+    public static String getFileName(File file) {
         String name = file.getName();
         return name.substring(0, name.lastIndexOf("."));
     }
 
-    public static String getFileSuffix(String file){
+    public static String getFileSuffix(String file) {
         return file.substring(file.lastIndexOf("."));
     }
 
-    public static String getFileName(String file){
+    public static String getFileName(String file) {
         return file.substring(0, file.lastIndexOf("."));
     }
 
-    public static void saveToPath(MultipartFile multipartFile, File folder){
+    public static void saveToPath(MultipartFile multipartFile, File folder) {
         try {
-            if(!folder.exists()){
+            if (!folder.exists()) {
                 folder.mkdirs();
             }
-            multipartFile.transferTo(new File(folder, multipartFile.getOriginalFilename()+"-"+System.currentTimeMillis()+".tmp"));
+            multipartFile.transferTo(new File(folder, multipartFile.getOriginalFilename() + "-" + System.currentTimeMillis() + ".tmp"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void saveToPath(MultipartFile multipartFile, File folder, String fileName){
+    public static void saveToPath(MultipartFile multipartFile, File folder, String fileName) {
         try {
-            if(!folder.exists()){
+            if (!folder.exists()) {
                 folder.mkdirs();
             }
             multipartFile.transferTo(new File(folder, fileName));
@@ -56,10 +61,10 @@ public class FileUtils {
 
         }
         File[] fileList = dir.listFiles();
-        File targetFile = new File(toFilePath+"/"+fileName);
+        File targetFile = new File(toFilePath + "/" + fileName);
         RandomAccessFile writeFile = null;
         try {
-            if(!targetFile.exists() && targetFile.isDirectory()){
+            if (!targetFile.exists() && targetFile.isDirectory()) {
                 targetFile.createNewFile();
             }
             writeFile = new RandomAccessFile(targetFile, "rw");
@@ -99,11 +104,60 @@ public class FileUtils {
         }
     }
 
-    /**
-     * 解压
-     * @param file 解压目标文件
-     */
-    public static void unZip(File file, File toPath){
+    public static List<FileVo> getChildren(String parentPath) {
+        File file = new File(parentPath);
+        List<FileVo> list = new ArrayList<>();
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                FileVo fileVo = new FileVo();
+                fileVo.setFileName(f.getName());
+                fileVo.setFilePermissions(getPermission(f));
+                fileVo.setFileSize(f.length());
+                fileVo.setFilePath(f.getPath());
+                if(f.isDirectory()){
+                    fileVo.setFileType(FileType.FOLDER);
+                }else {
+                    fileVo.setFileType(FileType.getFileType4FileSuffix(getFileSuffix(f)));
+                }
+                list.add(fileVo);
+            }
+        }
+        return list;
+    }
 
+    public static List<FileVo> getRoots(){
+        File[] files = File.listRoots();
+        List<FileVo> fileVos = new ArrayList<>();
+        for (File file : files) {
+            FileVo fileVo = new FileVo();
+            fileVo.setFileName(file.getPath().replaceAll(":\\\\",""));
+            fileVo.setFileSize(file.length());
+            fileVo.setFileType(FileType.FOLDER);
+            fileVo.setFilePermissions(getPermission(file));
+            fileVo.setFilePath(file.getPath());
+            fileVos.add(fileVo);
+        }
+        return fileVos;
+    }
+
+    public static String getPermission(File file){
+        List<String> filePermission = new ArrayList<>();
+        if (file.canExecute()) {
+            filePermission.add("执行");
+        } else {
+            filePermission.add("-");
+        }
+        if (file.canRead()) {
+            filePermission.add("读取");
+        } else {
+            filePermission.add("-");
+        }
+        if (file.canWrite()) {
+            filePermission.add("写入");
+        } else {
+            filePermission.add("-");
+        }
+        return String.join("/",filePermission);
     }
 }

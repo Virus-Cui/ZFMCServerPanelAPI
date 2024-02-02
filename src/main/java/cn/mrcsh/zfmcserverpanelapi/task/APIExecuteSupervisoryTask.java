@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 @Component
@@ -30,7 +32,7 @@ public class APIExecuteSupervisoryTask {
             Cache.resQueue.remove();
         }
         QueueData<HashMap<String, Integer>> queueData = new QueueData<>();
-        queueData.setMinute(Calendar.getInstance().get(Calendar.MINUTE));
+        queueData.setMinute(new SimpleDateFormat("hh:mm").format(new Date()));
         queueData.setData(Cache.cacheCount);
         Cache.resQueue.add(queueData);
         Cache.cacheCount = new HashMap<>();

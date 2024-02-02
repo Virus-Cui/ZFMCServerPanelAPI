@@ -19,5 +19,6 @@ public class EchartsVo {
         private String type;
         private String areaStyle = "";
         private Queue<Integer> data;
+        private boolean smooth = true;
     }
 }

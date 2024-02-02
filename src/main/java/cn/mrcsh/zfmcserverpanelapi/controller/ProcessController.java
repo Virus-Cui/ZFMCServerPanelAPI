@@ -1,30 +1,22 @@
 package cn.mrcsh.zfmcserverpanelapi.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.mrcsh.zfmcserverpanelapi.annotation.APISupervisory;
 import cn.mrcsh.zfmcserverpanelapi.config.Constance;
 import cn.mrcsh.zfmcserverpanelapi.entity.dto.ContainerDTO;
-import cn.mrcsh.zfmcserverpanelapi.entity.enums.ErrorCode;
-import cn.mrcsh.zfmcserverpanelapi.entity.enums.FileType;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Command;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.ContainerVo;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.PageVo;
-import cn.mrcsh.zfmcserverpanelapi.manager.BeanManager;
 import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
-import cn.mrcsh.zfmcserverpanelapi.manager.FileManager;
+import cn.mrcsh.zfmcserverpanelapi.manager.RuntimeManager;
 import cn.mrcsh.zfmcserverpanelapi.service.ContainerService;
 import cn.mrcsh.zfmcserverpanelapi.service.SystemSettingsService;
 import cn.mrcsh.zfmcserverpanelapi.utils.BeanUtils;
-import cn.mrcsh.zfmcserverpanelapi.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -43,7 +35,7 @@ public class ProcessController extends ABaseController {
     private SystemSettingsService settingsService;
 
     @Autowired
-    private FileManager fileManager;
+    private RuntimeManager runtimeManager;
 
     @PostMapping("/createNewContainer")
     @APISupervisory("实例接口")

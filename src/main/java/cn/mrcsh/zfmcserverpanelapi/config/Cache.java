@@ -3,6 +3,7 @@ package cn.mrcsh.zfmcserverpanelapi.config;
 import cn.mrcsh.zfmcserverpanelapi.entity.structure.QueueData;
 
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Cache {
@@ -20,11 +21,9 @@ public class Cache {
     static {
         for (int i = 11; i > 0; i--) {
             QueueData<HashMap<String, Integer>> queueData = new QueueData<>();
-            Integer minute = Calendar.getInstance().get(Calendar.MINUTE) - 5 * i;
-            if (minute < 0) {
-                minute += 60;
-            }
-            queueData.setMinute(minute);
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE,-5*i);
+            queueData.setMinute(new SimpleDateFormat("hh:mm").format(calendar.getTime()));
             queueData.setData(new HashMap<>());
             resQueue.add(queueData);
             CPUUsage.add(0);

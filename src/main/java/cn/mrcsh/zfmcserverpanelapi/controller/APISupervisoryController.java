@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -36,13 +37,13 @@ public class APISupervisoryController extends ABaseController {
         Queue<QueueData<HashMap<String, Integer>>> queueData = new LinkedList<>(Cache.resQueue);
         QueueData<HashMap<String, Integer>> qd = new QueueData<>();
         qd.setData(Cache.cacheCount);
-        qd.setMinute(minute);
+        qd.setMinute(new SimpleDateFormat("hh:mm").format(new Date()));
         queueData.add(qd);
         LinkedList<String> xAxis = new LinkedList<>();
         LinkedList<String> types = new LinkedList<>();
         for (QueueData<HashMap<String, Integer>> queueDatum : queueData) {
 
-            xAxis.add(String.valueOf(queueDatum.getMinute())+"分钟前");
+            xAxis.add(String.valueOf(queueDatum.getMinute()));
             types.addAll(queueDatum.getData().keySet());
         }
 

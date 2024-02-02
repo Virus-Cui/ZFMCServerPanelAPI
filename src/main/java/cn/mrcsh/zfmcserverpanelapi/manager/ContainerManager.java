@@ -18,10 +18,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 @Slf4j
 public class ContainerManager {
+
+    @Autowired
+    private RuntimeManager runtimeManager;
     // 实例ID 实例
 
     @Autowired
@@ -35,15 +39,20 @@ public class ContainerManager {
 
     public void exec(Container container) throws IOException {
         Container containerByContainerId = getContainerByContainerId(container.getContainerId());
-        if(containerByContainerId != null && (containerByContainerId.getStatus().equals(ContainerStatus.STARTING) || containerByContainerId.getStatus().equals(ContainerStatus.RUNNING))){
+        if (containerByContainerId != null && (containerByContainerId.getStatus().equals(ContainerStatus.STARTING) || containerByContainerId.getStatus().equals(ContainerStatus.RUNNING))) {
             return;
         }
         container.setStatus(ContainerStatus.STARTING);
         sendToWS(container.getContainerId(), "STARTING", WSMessageType.STATUS);
         String StartCmd = container.getCmd();
-        String[] cmd = {"cmd","/c",container.getCmd()};
-        if(StartCmd.startsWith("java") || StartCmd.startsWith("python")){
-            cmd = new String[]{StartCmd};
+        String[] cmd = null;
+        if (runtimeManager.getSYSTEM_TYPE().toUpperCase(Locale.ROOT).contains("WIN")) {
+            cmd = new String[]{"cmd", "/c", container.getCmd()};
+        } else {
+            cmd = new String[]{"/bin/sh", "/c", container.getCmd()};
+        }
+        if (StartCmd.startsWith("java") || StartCmd.startsWith("python")) {
+            cmd = StartCmd.split(" ");
         }
         Process exec = Runtime.getRuntime().exec(cmd, new String[]{}, new File(container.getWorkdir()));
         new Thread(() -> {

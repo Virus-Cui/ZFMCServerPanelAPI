@@ -7,8 +7,10 @@ import cn.mrcsh.zfmcserverpanelapi.entity.structure.SystemSettings;
 import cn.mrcsh.zfmcserverpanelapi.mapper.ContainerMapper;
 import cn.mrcsh.zfmcserverpanelapi.service.ContainerService;
 import cn.mrcsh.zfmcserverpanelapi.service.SystemSettingsService;
+import cn.mrcsh.zfmcserverpanelapi.task.DatabaseInitialize;
 import cn.mrcsh.zfmcserverpanelapi.utils.FileUtils;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,17 +22,15 @@ import java.util.Locale;
 
 @Component
 @Slf4j
-public class FileManager {
-
-    @Autowired
-    private ContainerManager containerManager;
-
-    @Autowired
-    private ContainerService containerService;
+public class RuntimeManager {
 
     @Autowired
     private ContainerMapper containerMapper;
 
+    @Autowired
+    private DatabaseInitialize databaseInitialize;
+
+    @Getter
     private String SYSTEM_TYPE = "";
     private final String WINDOWS_DEFAULT_DATA_DIR = "C:/ZFMCPanel/instanceData";
     private final String UNIX_DEFAULT_DATA_DIR = "/opt/ZFMCPanel/instanceData";
@@ -38,8 +38,9 @@ public class FileManager {
     @Autowired
     private SystemSettingsService settingsService;
 
-    @PostConstruct
+    @PostConstruct()
     public void initSystemType() {
+        databaseInitialize.initDatabase();
         SYSTEM_TYPE = System.getProperty("os.name");
         log.info("初始化系统信息: {}", SYSTEM_TYPE);
         SystemSettings settings = settingsService.getSettings();
