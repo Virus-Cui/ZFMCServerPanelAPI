@@ -12,6 +12,9 @@ import java.util.Arrays;
 @Slf4j
 public class Test {
     public static void main(String[] args) throws InterruptedException, IOException {
-        System.out.println(Arrays.toString(File.listRoots()));
+        System.out.println(System.getProperty("java.specification.version"));
+        System.out.println(System.getProperty("java.vm.name"));
+        System.out.println(System.getProperty("sun.arch.data.model"));
+        System.out.println(System.getProperty("os.arch"));
     }
 }

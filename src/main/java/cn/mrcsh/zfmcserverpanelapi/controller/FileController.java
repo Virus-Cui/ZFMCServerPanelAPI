@@ -1,6 +1,7 @@
 package cn.mrcsh.zfmcserverpanelapi.controller;
 
 import cn.mrcsh.zfmcserverpanelapi.annotation.APISupervisory;
+import cn.mrcsh.zfmcserverpanelapi.entity.dto.FileInfoDTO;
 import cn.mrcsh.zfmcserverpanelapi.entity.dto.PathDTO;
 import cn.mrcsh.zfmcserverpanelapi.entity.dto.UnZipFileDTO;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.ErrorCode;
@@ -12,10 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -48,19 +47,31 @@ public class FileController extends ABaseController {
     }
 
     @GetMapping("/roots")
-    public response getRoots(){
+    public response getRoots() {
         return success(FileUtils.getRoots());
     }
 
     @PostMapping("/previousFile")
-    public response getPreviousFile(PathDTO pathDTO){
+    public response getPreviousFile(PathDTO pathDTO) {
         File file = new File(pathDTO.getPath());
         File parentFile = file.getParentFile();
-        if(parentFile == null){
+        if (parentFile == null) {
             List<FileVo> roots = FileUtils.getRoots();
             return success(roots);
         }
         List<FileVo> children = FileUtils.getChildren(parentFile.getPath());
         return success(children);
+    }
+
+    @PostMapping("/readFile")
+    public response readFile(PathDTO pathDTO) throws IOException {
+        String s = FileUtils.readFile2Text(pathDTO.getPath());
+        return success(s);
+    }
+
+    @PostMapping("/updateFile")
+    public response updateFile(@RequestBody FileInfoDTO fileInfoDTO) throws IOException {
+        FileUtils.saveFileContent(fileInfoDTO.getFileFolder(),fileInfoDTO.getFileName(),fileInfoDTO.getFileContent());
+        return success();
     }
 }

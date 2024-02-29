@@ -9,6 +9,7 @@ public enum FileType {
     ZIP(1,new String[]{".zip",".rar",".7z",".tar",".gz"}),
     JAR(2,new String[]{".jar"}),
     FOLDER(3, new String[]{"folder"}),
+    CANREAD(4,new String[]{".xml",".java",".txt",".vue",".js",".ts",".properties",".yml",".yaml",".toml",".py",".cpp",".c",".h",".sh",".cmd",".bat",".json",".html",".css",".sql",".config",".ini",".log"}),
     OTHER(0,new String[]{})
     ;
     private Integer type;

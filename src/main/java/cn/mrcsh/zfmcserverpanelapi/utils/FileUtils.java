@@ -1,16 +1,12 @@
 package cn.mrcsh.zfmcserverpanelapi.utils;
 
-import cn.hutool.core.io.FileUtil;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.FileType;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.FileVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Slf4j
@@ -159,5 +155,32 @@ public class FileUtils {
             filePermission.add("-");
         }
         return String.join("/",filePermission);
+    }
+
+    public static String readFile2Text(String filePath) throws IOException {
+        File file = new File(filePath);
+        if(!file.exists()){
+            return null;
+        }
+        StringBuffer result = new StringBuffer();
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String s = null;
+        while ((s = reader.readLine()) != null){
+            result.append(s).append("\n");
+        }
+        reader.close();
+        return result.toString();
+    }
+
+
+    public static void saveFileContent(String fileFolder, String fileName, String[] fileContent) throws IOException {
+        File file = new File(fileFolder, fileName);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        for (String s : fileContent) {
+            writer.write(s);
+            writer.newLine();
+        }
+        writer.flush();
+        writer.close();
     }
 }

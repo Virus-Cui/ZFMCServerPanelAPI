@@ -34,3 +34,5 @@ sa-token:
   # jwt秘钥
   jwt-secret-key: hklashdklahsdkshadl
 
+version: V 1.0 TEST
+

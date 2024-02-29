@@ -49,7 +49,7 @@ public class ContainerManager {
         if (runtimeManager.getSYSTEM_TYPE().toUpperCase(Locale.ROOT).contains("WIN")) {
             cmd = new String[]{"cmd", "/c", container.getCmd()};
         } else {
-            cmd = new String[]{"/bin/sh", "/c", container.getCmd()};
+            cmd = new String[]{"/bin/sh", "-c", container.getCmd()};
         }
         if (StartCmd.startsWith("java") || StartCmd.startsWith("python")) {
             cmd = StartCmd.split(" ");

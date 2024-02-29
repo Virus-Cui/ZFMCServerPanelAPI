@@ -15,4 +15,5 @@ public class AuthController extends ABaseController{
         String tokenValue = StpUtil.getTokenInfo().getTokenValue();
         return success(tokenValue);
     }
+
 }
