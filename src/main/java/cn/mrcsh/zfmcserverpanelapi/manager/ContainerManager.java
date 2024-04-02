@@ -114,6 +114,24 @@ public class ContainerManager {
             }
 
         }).start();
+
+        new Thread(() -> {
+            try {
+                InputStream inputStream = container.getErrorStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, container.getEncode()));
+                String str;
+                while ((str = reader.readLine()) != null) {
+                    String log = "";
+                    log = String.format(ERROR, "[ERROR]:", str);
+                    container.setLastType(ERROR);
+                    container.getQueue().add(log);
+                    sendToWS(container.getContainerId(), log, WSMessageType.LOG);
+                }
+            } catch (Exception e) {
+                log.error("错误", e);
+            }
+
+        }).start();
         new Thread(() -> {
             while (true) {
                 if (!exec.isAlive()) {

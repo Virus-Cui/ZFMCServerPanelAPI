@@ -54,6 +54,7 @@ public class Container {
     private Queue<String> queue;
     // 字符集
     private String encode;
+    private boolean autoStart;
 
     public void initStream() {
         this.setErrorStream(process.getErrorStream());

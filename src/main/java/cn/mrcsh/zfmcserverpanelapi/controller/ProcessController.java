@@ -1,5 +1,6 @@
 package cn.mrcsh.zfmcserverpanelapi.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.mrcsh.zfmcserverpanelapi.annotation.APISupervisory;
 import cn.mrcsh.zfmcserverpanelapi.config.Constance;
 import cn.mrcsh.zfmcserverpanelapi.entity.dto.ContainerDTO;
@@ -39,6 +40,7 @@ public class ProcessController extends ABaseController {
 
     @PostMapping("/createNewContainer")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public response createNewInstance(@RequestBody ContainerDTO containerDto) throws IllegalAccessException {
         Container container = new Container();
         BeanUtils.copyProperty(containerDto, container);
@@ -49,6 +51,7 @@ public class ProcessController extends ABaseController {
 
     @GetMapping("/start/{id}")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public response start(@PathVariable String id) {
         containerService.startContainer(id);
         return success();
@@ -56,6 +59,7 @@ public class ProcessController extends ABaseController {
 
     @GetMapping("/stop/{id}")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public response stop(@PathVariable String id) {
         containerService.stopContainer(id);
         return success();
@@ -63,13 +67,14 @@ public class ProcessController extends ABaseController {
 
     @PostMapping("/cmd/{id}")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public response execCmd(@PathVariable String id, @RequestBody Command command) {
         containerManager.getContainerByContainerId(id).sendCommand(command.getCmd() == null ? "" : command.getCmd());
         return success();
     }
 
     @GetMapping("/all/{currentPage}")
-//    @SaCheckLogin
+    @SaCheckLogin
     @APISupervisory("实例接口")
     public response allContainer(@PathVariable Integer currentPage, String containerName) {
         PageVo<Container> pageVo = containerService.getAllContainer(currentPage, containerName);
@@ -78,12 +83,14 @@ public class ProcessController extends ABaseController {
 
     @GetMapping("/dis/{id}")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public void dis(@PathVariable String id) {
         containerManager.getContainerByContainerId(id).shutdown();
     }
 
     @GetMapping("/del/{containerId}")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public response deleteContainer(@PathVariable String containerId) {
         containerService.deleteContainerByContainerId(containerId);
         return success();
@@ -91,6 +98,7 @@ public class ProcessController extends ABaseController {
 
     @GetMapping("/one/{id}")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public response one(@PathVariable String id) {
         ContainerVo container = containerService.getOne(id);
         return success(container);
@@ -98,6 +106,7 @@ public class ProcessController extends ABaseController {
 
     @PostMapping("/delBatch")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public response delBatch(@RequestBody List<String> ids) {
         containerService.deleteBatch(ids);
         return success();
@@ -105,6 +114,7 @@ public class ProcessController extends ABaseController {
 
     @PostMapping("/update")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public response update(@RequestBody ContainerDTO containerDTO) throws IllegalAccessException {
         Container container = new Container();
         BeanUtils.copyProperty(containerDTO, container);
@@ -115,12 +125,14 @@ public class ProcessController extends ABaseController {
     @PostMapping("/startBatch")
     @Async
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public void startBatch(@RequestBody List<String> ids) {
         containerService.startBatch(ids);
     }
 
     @PostMapping("/stopBatch")
     @APISupervisory("实例接口")
+    @SaCheckLogin
     public void stopBatch(@RequestBody List<String> ids) {
         containerService.stopBatch(ids);
     }

@@ -29,7 +29,7 @@ public class ABaseController {
 
     public response success(){
         response response = new response();
-        response.setData(null);
+        response.setData("success");
         response.setMsg("success");
         response.setCode(2000);
         return response;
@@ -39,7 +39,7 @@ public class ABaseController {
         response response = new response();
         response.setCode(errorCode.getCode());
         response.setMsg(errorCode.getMsg());
-        response.setData(null);
+        response.setData("error");
         return response;
     }
 

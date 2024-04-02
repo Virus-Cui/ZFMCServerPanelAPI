@@ -10,6 +10,7 @@ public enum FileType {
     JAR(2,new String[]{".jar"}),
     FOLDER(3, new String[]{"folder"}),
     CANREAD(4,new String[]{".xml",".java",".txt",".vue",".js",".ts",".properties",".yml",".yaml",".toml",".py",".cpp",".c",".h",".sh",".cmd",".bat",".json",".html",".css",".sql",".config",".ini",".log"}),
+    IMAGE(5, new String[]{".jpg",".png",".webp",".ico",".jpeg",".tiff",".gif",".raw",".ARW",",svg",".pdf",".bmp"}),
     OTHER(0,new String[]{})
     ;
     private Integer type;
@@ -20,15 +21,15 @@ public enum FileType {
         this.suffix = suffix;
     }
 
-    public static Integer isInclude(String suffix){
+    public static FileType isInclude(String suffix){
         for (FileType value : FileType.values()) {
             for (String valueSuffix : value.getSuffix()) {
                 if(valueSuffix.equals(suffix)){
-                    return value.getType();
+                    return value;
                 }
             }
         }
-        return -1;
+        return OTHER;
     }
 
     public static FileType getFileType4FileSuffix(String suffix){
@@ -41,5 +42,6 @@ public enum FileType {
         }
         return FileType.OTHER;
     }
+
 
 }

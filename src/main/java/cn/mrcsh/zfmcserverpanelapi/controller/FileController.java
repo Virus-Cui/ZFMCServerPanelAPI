@@ -1,5 +1,6 @@
 package cn.mrcsh.zfmcserverpanelapi.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.mrcsh.zfmcserverpanelapi.annotation.APISupervisory;
 import cn.mrcsh.zfmcserverpanelapi.entity.dto.FileInfoDTO;
 import cn.mrcsh.zfmcserverpanelapi.entity.dto.PathDTO;
@@ -27,13 +28,14 @@ public class FileController extends ABaseController {
 
     @PostMapping("/uploadChunk/{containerId}")
     @APISupervisory("文件接口")
+    @SaCheckLogin
     public synchronized response uploadChunk(@PathVariable String containerId, Chunk chunk) {
         runtimeManager.uploadChunk(chunk, containerId);
         return success(null, ErrorCode.UPLOAD_SUCCESS);
     }
 
     @PostMapping("/unzip")
-//    @SaCheckLogin
+    @SaCheckLogin
     @APISupervisory("文件接口")
     public response unzip(UnZipFileDTO unZipFileDTO) {
         boolean b = runtimeManager.unzipFile(unZipFileDTO.getContainerId(), unZipFileDTO.getFileName());
@@ -41,17 +43,23 @@ public class FileController extends ABaseController {
     }
 
     @PostMapping("/files")
+    @APISupervisory("文件接口")
+    @SaCheckLogin
     public response getFilesFromPath(PathDTO dto) throws UnsupportedEncodingException {
         List<FileVo> children = FileUtils.getChildren(dto.getPath());
         return success(children);
     }
 
     @GetMapping("/roots")
+    @APISupervisory("文件接口")
+    @SaCheckLogin
     public response getRoots() {
         return success(FileUtils.getRoots());
     }
 
     @PostMapping("/previousFile")
+    @APISupervisory("文件接口")
+    @SaCheckLogin
     public response getPreviousFile(PathDTO pathDTO) {
         File file = new File(pathDTO.getPath());
         File parentFile = file.getParentFile();
@@ -64,14 +72,18 @@ public class FileController extends ABaseController {
     }
 
     @PostMapping("/readFile")
+    @APISupervisory("文件接口")
+    @SaCheckLogin
     public response readFile(PathDTO pathDTO) throws IOException {
         String s = FileUtils.readFile2Text(pathDTO.getPath());
         return success(s);
     }
 
     @PostMapping("/updateFile")
-    public response updateFile(@RequestBody FileInfoDTO fileInfoDTO) throws IOException {
-        FileUtils.saveFileContent(fileInfoDTO.getFileFolder(),fileInfoDTO.getFileName(),fileInfoDTO.getFileContent());
+    @APISupervisory("文件接口")
+    @SaCheckLogin
+    public response updateFile(FileInfoDTO fileInfoDTO) throws IOException {
+        FileUtils.saveFileContent(fileInfoDTO.getFilePath(),fileInfoDTO.getFileContent());
         return success();
     }
 }

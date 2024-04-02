@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class FileInfoDTO {
-    private String fileFolder;
-    private String fileName;
+    private String filePath;
     private String[] fileContent;
 }

@@ -1,5 +1,6 @@
 package cn.mrcsh.zfmcserverpanelapi.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.mrcsh.zfmcserverpanelapi.annotation.APISupervisory;
 import cn.mrcsh.zfmcserverpanelapi.config.Cache;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.WSMessageType;
@@ -30,6 +31,7 @@ public class APISupervisoryController extends ABaseController {
 
     @GetMapping("/load")
     @APISupervisory("监控接口")
+    @SaCheckLogin
     public response load() {
         Map<String, Object> resultMap = new HashMap<>();
         Integer minute = Calendar.getInstance().get(Calendar.MINUTE);

@@ -17,5 +17,6 @@ public class ContainerVo {
     // 停止命令
     private String stopCmd;
     private ContainerStatus status;
+    private boolean autoStart;
 
 }

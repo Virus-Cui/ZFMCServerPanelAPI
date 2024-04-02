@@ -6,6 +6,7 @@ import cn.mrcsh.zfmcserverpanelapi.entity.structure.Container;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.ContainerVo;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.PageVo;
 import cn.mrcsh.zfmcserverpanelapi.manager.ContainerManager;
+import cn.mrcsh.zfmcserverpanelapi.manager.RuntimeManager;
 import cn.mrcsh.zfmcserverpanelapi.mapper.ContainerMapper;
 import cn.mrcsh.zfmcserverpanelapi.service.ContainerService;
 import cn.mrcsh.zfmcserverpanelapi.service.SystemSettingsService;
@@ -19,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -37,11 +35,19 @@ public class ContainerServiceImpl implements ContainerService {
     @Autowired
     private SystemSettingsService settingsService;
 
+    @Autowired
+    private RuntimeManager runtimeManager;
+
     @Override
     public Container createNewContainer(Container container) {
         container.setContainerId(IdUtil.getSnowflakeNextIdStr());
         if (container.getWorkdir() == null) {
             container.setWorkdir(settingsService.getSettings().getDataDir() + "/" + container.getContainerId());
+        }
+        if (runtimeManager.getSYSTEM_TYPE().toUpperCase(Locale.ROOT).contains("WIN")) {
+            container.setEncode("GBK");
+        } else {
+            container.setEncode("UTF-8");
         }
         containerMapper.insert(container);
         return container;
@@ -125,6 +131,13 @@ public class ContainerServiceImpl implements ContainerService {
 
     @Override
     public void update(Container container) {
+        Container con = containerManager.getRunningContainer().get(container.getContainerId());
+        if(con != null){
+            con.setStopCmd(container.getStopCmd());
+            con.setAutoStart(container.isAutoStart());
+            con.setCmd(container.getCmd());
+            con.setContainerName(container.getContainerName());
+        }
         containerMapper.updateById(container);
     }
 

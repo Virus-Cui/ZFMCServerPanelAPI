@@ -1,12 +1,17 @@
 package cn.mrcsh.zfmcserverpanelapi.utils;
 
+import cn.mrcsh.zfmcserverpanelapi.entity.enums.ErrorCode;
 import cn.mrcsh.zfmcserverpanelapi.entity.enums.FileType;
 import cn.mrcsh.zfmcserverpanelapi.entity.vo.FileVo;
+import cn.mrcsh.zfmcserverpanelapi.exceptions.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -158,23 +163,35 @@ public class FileUtils {
     }
 
     public static String readFile2Text(String filePath) throws IOException {
-        File file = new File(filePath);
-        if(!file.exists()){
-            return null;
+        String fileSuffix = getFileSuffix(filePath);
+
+        FileType include = FileType.isInclude(fileSuffix);
+        switch (include){
+            case JAR -> throw new BusinessException(ErrorCode.JAR_FILE_TODO_CALLBACK);
+            case ZIP -> throw new BusinessException(ErrorCode.ZIP_FILE_TODO_CALLBACK);
+            case IMAGE -> throw new BusinessException(ErrorCode.IMAGE_FILE_TODO_CALLBACK);
+            case CANREAD -> {
+                File file = new File(filePath);
+                if(!file.exists()){
+                    return null;
+                }
+                StringBuffer result = new StringBuffer();
+                BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
+                String s = null;
+                while ((s = reader.readLine()) != null){
+                    result.append(s).append("\n");
+                }
+                reader.close();
+                return result.toString();
+            }
+            default -> throw new BusinessException(ErrorCode.FILE_TYPE_IS_NOT_EXISTS);
+
         }
-        StringBuffer result = new StringBuffer();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String s = null;
-        while ((s = reader.readLine()) != null){
-            result.append(s).append("\n");
-        }
-        reader.close();
-        return result.toString();
     }
 
 
-    public static void saveFileContent(String fileFolder, String fileName, String[] fileContent) throws IOException {
-        File file = new File(fileFolder, fileName);
+    public static void saveFileContent(String filePath, String[] fileContent) throws IOException {
+        File file = new File(filePath);
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         for (String s : fileContent) {
             writer.write(s);
